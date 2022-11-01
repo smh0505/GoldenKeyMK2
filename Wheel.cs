@@ -42,27 +42,43 @@ namespace GoldenKeyMK2
 
         public static void RemoveOption()
         {
-
+            
         }
 
-        public static void PrintOption()
+        public static void PrintOption(float angle)
         {
-            int x = 440 - (int)(Raylib.MeasureTextEx(Program.DefaultFont, "Hello World!", 48, 0).X / 2);
-            int y = 6;
+            float tau = 540f - angle;
+            int id = (int)Math.Floor((tau >= 360f ? tau - 360 : tau) / (360f / Sum));
 
-            Raylib.DrawTextEx(Program.DefaultFont, "Hello World!", new Vector2(x, y), 48, 0, Color.BLACK);
+            Option target = Options[0];
+            int idCount = 0;
+            foreach (var option in Options)
+            {
+                if (idCount > id) break;
+                else 
+                {
+                    target = option;
+                    idCount += option.Count;
+                }
+            }
+
+            int x = 440 - (int)(Raylib.MeasureTextEx(Program.DefaultFont, target.Name, 48, 0).X / 2);
+
+            Raylib.DrawTextEx(Program.DefaultFont, target.Name, new Vector2(x, 6), 48, 0, Color.BLACK);
         }
 
         public static void DrawWheel(float startAngle)
         {
-            var center = new Vector2(440, 360);
+            var center = new Vector2(440, 400);
             var currAngle = startAngle;
             foreach (var option in Options)
             {
-                Raylib.DrawCircleSector(center, 300, currAngle, currAngle + 360f / Sum * option.Count, 0, Raylib.Fade(option.Color, 0.3f));
+                Raylib.DrawCircleSector(center, 300, currAngle, currAngle + 360f / Sum * option.Count, 0, Raylib.Fade(option.Color, 0.5f));
                 Raylib.DrawCircleSectorLines(center, 300, currAngle, currAngle + 360f / Sum * option.Count, 0, option.Color);
                 currAngle += 360f / Sum * option.Count;
             }
+
+            Raylib.DrawTriangle(new Vector2(420, 60), new Vector2(440, 100), new Vector2(460, 60), Color.BLACK);
         }
     }
 }
