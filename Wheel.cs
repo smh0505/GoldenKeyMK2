@@ -56,7 +56,7 @@ namespace GoldenKeyMK2
 
         public static void DrawWheel(float startAngle)
         {
-            var center = new Vector2(450, 360);
+            var center = new Vector2(440, 360);
             var currAngle = startAngle;
             foreach (var option in Options)
             {

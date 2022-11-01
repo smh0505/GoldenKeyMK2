@@ -15,8 +15,10 @@ namespace GoldenKeyMK2
         public static GameScreen CurrScreen;
         public static DefaultSet Setting;
         public static bool KeyProcessing = false;
+        public static bool IsSpinning = false;
+        public static bool StopTriggered = false;
         public static float Angle = 0;
-        public static float Theta = 2;
+        public static float Theta = 50;
 
         private static void Main()
         {
@@ -35,6 +37,13 @@ namespace GoldenKeyMK2
                     case GameScreen.Connect:
                         if (!KeyProcessing) Ui.GetPassword();
                         break;
+                    case GameScreen.Wheel:
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
+                        {
+                            if (!IsSpinning) IsSpinning = true;
+                            else if (!StopTriggered) StopTriggered = true;
+                        }
+                        break;
                 }
 
                 Raylib.BeginDrawing();
@@ -46,8 +55,16 @@ namespace GoldenKeyMK2
                         break;
                     case GameScreen.Wheel:
                         Raylib.DrawFPS(8, 8);
+                        if (IsSpinning) Angle += Theta;
+                        if (StopTriggered) Theta -= (float)(1 / Math.PI);
                         Wheel.DrawWheel(Angle);
-                        Angle += Theta;
+                        Panel.DrawPanels(font);
+                        if (Theta <= 0) 
+                        {
+                            IsSpinning = false;
+                            StopTriggered = false;
+                            Theta = 50;
+                        }
                         break;
                 }
                 Raylib.EndDrawing();
