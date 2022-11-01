@@ -3,12 +3,6 @@ using Raylib_cs;
 
 namespace GoldenKeyMK2
 {
-    public enum GameScreen
-    {
-        Connect = 0,
-        Wheel
-    }
-
     public class Program
     {
         public static string Input = string.Empty;
@@ -17,14 +11,12 @@ namespace GoldenKeyMK2
         public static bool KeyProcessing = false;
         public static bool IsSpinning = false;
         public static bool StopTriggered = false;
-        public static float Angle = 0;
+        public static float Angle = 180;
         public static float Theta = 50;
 
         private static void Main()
         {
-            const int width = 1280;
-            const int height = 720;
-            Raylib.InitWindow(width, height, "황금열쇠");
+            Raylib.InitWindow(1280, 720, "황금열쇠");
             Raylib.SetTargetFPS(60);
             Font font = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
             CurrScreen = GameScreen.Connect;
@@ -55,7 +47,11 @@ namespace GoldenKeyMK2
                         break;
                     case GameScreen.Wheel:
                         Raylib.DrawFPS(8, 8);
-                        if (IsSpinning) Angle += Theta;
+                        if (IsSpinning) 
+                        {
+                            Angle += Theta;
+                            if (Angle >= 360) Angle -= 360;
+                        }
                         if (StopTriggered) Theta -= (float)(1 / Math.PI);
                         Wheel.DrawWheel(Angle);
                         Panel.DrawPanels(font);

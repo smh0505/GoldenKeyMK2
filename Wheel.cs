@@ -3,20 +3,6 @@ using Raylib_cs;
 
 namespace GoldenKeyMK2
 {
-    public struct Option
-    {
-        public string Name;
-        public Color Color;
-        public int Count;
-
-        public Option(string name, Color color, int count)
-        {
-            this.Name = name;
-            this.Color = color;
-            this.Count = count;
-        }
-    }
-
     public class Wheel
     {
         public static List<Option> Options = new List<Option>();

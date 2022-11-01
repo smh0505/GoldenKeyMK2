@@ -5,18 +5,6 @@ using Newtonsoft.Json;
 
 namespace GoldenKeyMK2
 {
-    public struct DefaultSet
-    {
-        public string Key;
-        public List<string> Values;
-
-        public DefaultSet(string key, List<string> values)
-        {
-            this.Key = key;
-            this.Values = values;
-        }
-    }
-
     public class Ui
     {
         public static string? Payload;
