@@ -29,6 +29,7 @@ namespace GoldenKeyMK2
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) && Program.Input.Length > 0) Program.Input = Program.Input.Remove(Program.Input.Length - 1);
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
+                Program.KeyProcessing = true;
                 await LoadPayload(Program.Input);
                 if (!string.IsNullOrEmpty(Payload)) 
                 {
@@ -36,8 +37,10 @@ namespace GoldenKeyMK2
                     Program.Setting.Key = Program.Input;
                     StreamWriter w = new StreamWriter("default.json");
                     w.Write(JsonConvert.SerializeObject(Program.Setting));
+                    w.Close();
                 }
                 else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
+                Program.KeyProcessing = false;
             }
         }
 
@@ -53,6 +56,9 @@ namespace GoldenKeyMK2
             Raylib.DrawTextEx(font, secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0, secret.Length >= 40 ? 40 : secret.Length), new Vector2(16, 80), 32, 0, Color.BLACK);
 
             Raylib.DrawTextEx(font, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);
+
+            Raylib.DrawTextEx(font, "Copyright © 2017-2022, Eunbin Jeong (Dalgona.) <project-neodgm@dalgona.dev>", new Vector2(8, 680), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(font, "with reserved font name \"Neo둥근모\" and \"NeoDunggeunmo\".", new Vector2(8, 696), 16, 0, Color.GRAY);
         }
 
         private static async Task LoadPayload(string key)

@@ -14,12 +14,16 @@ namespace GoldenKeyMK2
         public static string Input = string.Empty;
         public static GameScreen CurrScreen;
         public static DefaultSet Setting;
+        public static bool KeyProcessing = false;
+        public static float Angle = 0;
+        public static float Theta = 2;
 
         private static void Main()
         {
             const int width = 1280;
             const int height = 720;
             Raylib.InitWindow(width, height, "황금열쇠");
+            Raylib.SetTargetFPS(60);
             Font font = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
             CurrScreen = GameScreen.Connect;
             ReadFile();
@@ -29,7 +33,7 @@ namespace GoldenKeyMK2
                 switch (CurrScreen)
                 {
                     case GameScreen.Connect:
-                        Ui.GetPassword();
+                        if (!KeyProcessing) Ui.GetPassword();
                         break;
                 }
 
@@ -41,7 +45,9 @@ namespace GoldenKeyMK2
                         Ui.DrawConnectScreen(font, Input);
                         break;
                     case GameScreen.Wheel:
-                        Wheel.DrawWheel(0);
+                        Raylib.DrawFPS(8, 8);
+                        Wheel.DrawWheel(Angle);
+                        Angle += Theta;
                         break;
                 }
                 Raylib.EndDrawing();
@@ -55,7 +61,8 @@ namespace GoldenKeyMK2
             if (File.Exists("default.json"))
             {
                 StreamReader r = new StreamReader("default.json");
-                Setting = JsonConvert.DeserializeObject<DefaultSet>(r.ReadToEnd());
+                var data = r.ReadToEnd();
+                if (!string.IsNullOrEmpty(data)) Setting = JsonConvert.DeserializeObject<DefaultSet>(data);
                 if (!string.IsNullOrEmpty(Setting.Key)) Input = Setting.Key;
                 if (Setting.Values != null)foreach (string option in Setting.Values) Wheel.AddOption(option);
                 r.Close();
