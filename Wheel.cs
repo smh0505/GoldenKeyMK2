@@ -40,6 +40,19 @@ namespace GoldenKeyMK2
             }
         }
 
+        public static void RemoveOption()
+        {
+
+        }
+
+        public static void PrintOption()
+        {
+            int x = 440 - (int)(Raylib.MeasureTextEx(Program.DefaultFont, "Hello World!", 48, 0).X / 2);
+            int y = 6;
+
+            Raylib.DrawTextEx(Program.DefaultFont, "Hello World!", new Vector2(x, y), 48, 0, Color.BLACK);
+        }
+
         public static void DrawWheel(float startAngle)
         {
             var center = new Vector2(440, 360);

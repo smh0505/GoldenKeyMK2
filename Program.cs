@@ -8,6 +8,7 @@ namespace GoldenKeyMK2
         public static string Input = string.Empty;
         public static GameScreen CurrScreen;
         public static DefaultSet Setting;
+        public static Font DefaultFont;
         public static bool KeyProcessing = false;
         public static bool IsSpinning = false;
         public static bool StopTriggered = false;
@@ -18,7 +19,7 @@ namespace GoldenKeyMK2
         {
             Raylib.InitWindow(1280, 720, "황금열쇠");
             Raylib.SetTargetFPS(60);
-            Font font = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
+            DefaultFont = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
             CurrScreen = GameScreen.Connect;
             ReadFile();
 
@@ -43,7 +44,7 @@ namespace GoldenKeyMK2
                 switch (CurrScreen)
                 {
                     case GameScreen.Connect:
-                        Ui.DrawConnectScreen(font, Input);
+                        Ui.DrawConnectScreen(Input);
                         break;
                     case GameScreen.Wheel:
                         Raylib.DrawFPS(8, 8);
@@ -54,18 +55,19 @@ namespace GoldenKeyMK2
                         }
                         if (StopTriggered) Theta -= (float)(1 / Math.PI);
                         Wheel.DrawWheel(Angle);
-                        Panel.DrawPanels(font);
+                        Panel.DrawPanels();
                         if (Theta <= 0) 
                         {
                             IsSpinning = false;
                             StopTriggered = false;
                             Theta = 50;
                         }
+                        Wheel.PrintOption();
                         break;
                 }
                 Raylib.EndDrawing();
             }
-            Raylib.UnloadFont(font);
+            Raylib.UnloadFont(DefaultFont);
             Raylib.CloseWindow();
         }
 

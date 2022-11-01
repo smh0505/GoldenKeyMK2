@@ -32,21 +32,25 @@ namespace GoldenKeyMK2
             }
         }
 
-        public static void DrawConnectScreen(Font font, string input)
+        public static void DrawConnectScreen(string input)
         {
             string secret = "".PadLeft(input.Length, '*');
 
-            Raylib.DrawTextEx(font, "투네이션 통합 위젯 URL", new Vector2(12, 12), 32, 0, Color.BLACK);
-            Raylib.DrawTextEx(font, "https://toon.at/widget/alertbox/", new Vector2(12, 44), 32, 0, Color.BLACK);
+            Raylib.DrawTextEx(Program.DefaultFont, "투네이션 통합 위젯 URL", new Vector2(12, 12), 32, 0, Color.BLACK);
+            Raylib.DrawTextEx(Program.DefaultFont, "https://toon.at/widget/alertbox/", new Vector2(12, 44), 32, 0, Color.BLACK);
 
             Raylib.DrawRectangle(12, 76, 650, 40, Color.LIGHTGRAY);
             Raylib.DrawRectangleLines(12, 76, 650, 40, Color.DARKGRAY);
-            Raylib.DrawTextEx(font, secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0, secret.Length >= 40 ? 40 : secret.Length), new Vector2(16, 80), 32, 0, Color.BLACK);
+            Raylib.DrawTextEx(Program.DefaultFont, 
+                secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0, secret.Length >= 40 ? 40 : secret.Length), 
+                new Vector2(16, 80), 32, 0, Color.BLACK);
 
-            Raylib.DrawTextEx(font, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);
 
-            Raylib.DrawTextEx(font, "Copyright © 2017-2022, Eunbin Jeong (Dalgona.) <project-neodgm@dalgona.dev>", new Vector2(8, 680), 16, 0, Color.GRAY);
-            Raylib.DrawTextEx(font, "with reserved font name \"Neo둥근모\" and \"NeoDunggeunmo\".", new Vector2(8, 696), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "Copyright © 2017-2022, Eunbin Jeong (Dalgona.) <project-neodgm@dalgona.dev>", 
+                new Vector2(8, 680), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "with reserved font name \"Neo둥근모\" and \"NeoDunggeunmo\".", 
+                new Vector2(8, 696), 16, 0, Color.GRAY);
         }
 
         private static async Task LoadPayload(string key)
