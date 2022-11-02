@@ -24,8 +24,9 @@ namespace GoldenKeyMK2
                     Program.CurrScreen = GameScreen.Wheel;
                     Program.Setting.Key = Program.Input;
                     StreamWriter w = new StreamWriter("default.json");
-                    w.Write(JsonConvert.SerializeObject(Program.Setting));
+                    await w.WriteAsync(JsonConvert.SerializeObject(Program.Setting));
                     w.Close();
+                    Program.DonationThread.Start();
                 }
                 else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
                 Program.KeyProcessing = false;

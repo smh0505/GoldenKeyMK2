@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Raylib_cs;
+using Websocket.Client;
 
 namespace GoldenKeyMK2
 {
@@ -21,6 +23,9 @@ namespace GoldenKeyMK2
         public static float Angle = 180;
         public static float Theta = 50;
 
+        public static Thread DonationThread = new Thread(Connect);
+        private static readonly ManualResetEvent ExitEvent = new ManualResetEvent(false);
+
         private static void Main()
         {
             Raylib.InitWindow(1280, 720, "황금열쇠");
@@ -36,6 +41,11 @@ namespace GoldenKeyMK2
                         if (!KeyProcessing) Ui.GetPassword();
                         break;
                     case GameScreen.Wheel:
+                        if (!IsSpinning && !OptionSelected && Wheel.WaitingOptions.Count > 0)
+                        {
+                            foreach (var option in Wheel.WaitingOptions) Wheel.AddOption(option);
+                            Wheel.WaitingOptions.Clear();
+                        }
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
                         {
                             if (!IsSpinning && !OptionSelected) IsSpinning = true;
@@ -70,6 +80,7 @@ namespace GoldenKeyMK2
             }
             Raylib.UnloadFont(DefaultFont);
             Raylib.UnloadTexture(LogoImage);
+            ExitEvent.Set();
             Raylib.CloseWindow();
         }
 
@@ -83,6 +94,25 @@ namespace GoldenKeyMK2
                 if (!string.IsNullOrEmpty(Setting.Key)) Input = Setting.Key;
                 if (Setting.Values != null)foreach (string option in Setting.Values) Wheel.AddOption(option);
                 r.Close();
+            }
+        }
+
+        public static void Connect()
+        {
+            Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
+            using (var client = new WebsocketClient(uri))
+            {
+                client.MessageReceived.Subscribe(msg =>
+                {
+                    if (msg.ToString().Contains("roulette"))
+                    {
+                        var roulette = Regex.Match(msg.ToString(), "\"message\":\"[^\"]* - [^\"]*\"").Value.Substring(10);
+                        var rValue = roulette.Split('-')[1].Replace("\"", "").Substring(1);
+                        if (rValue != "꽝") Wheel.WaitingOptions.Add(rValue);
+                    }
+                });
+                client.Start();
+                ExitEvent.WaitOne();
             }
         }
     }

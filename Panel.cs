@@ -69,7 +69,7 @@ namespace GoldenKeyMK2
         public static void Surprise()
         {
             _frameCount2++;
-            if (_frameCount2 % 4 == 0) _fadeCount -= 0.01f;
+            if (_frameCount2 % 3 == 0) _fadeCount -= 0.01f;
             var current = Wheel.Result(Program.Angle);
             var currVec = Raylib.MeasureTextEx(Program.DefaultFont, current.Name, 64, 0);
 
