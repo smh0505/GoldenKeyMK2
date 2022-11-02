@@ -47,6 +47,15 @@ namespace GoldenKeyMK2
 
             Raylib.DrawTextEx(Program.DefaultFont, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);
 
+            Raylib.DrawTexture(Program.LogoImage, 781, 248, Raylib.Fade(Color.WHITE, 0.5f));
+
+            Raylib.DrawTextEx(Program.DefaultFont, "리듬마블 황금열쇠 Mk.2 / Golden Key Mk.2 for Kim Pyun Jip's Rhythm Marble",
+                new Vector2(8, 616), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "Developed by BloppyHB (https://github.com/smh0505/GoldenKeyMK2)",
+                new Vector2(8, 632), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "Logo Image by 채팅_안치는사람 & cannabee",
+                new Vector2(8, 648), 16, 0, Color.GRAY);
+
             Raylib.DrawTextEx(Program.DefaultFont, "Copyright © 2017-2022, Eunbin Jeong (Dalgona.) <project-neodgm@dalgona.dev>", 
                 new Vector2(8, 680), 16, 0, Color.GRAY);
             Raylib.DrawTextEx(Program.DefaultFont, "with reserved font name \"Neo둥근모\" and \"NeoDunggeunmo\".", 

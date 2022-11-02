@@ -6,20 +6,25 @@ namespace GoldenKeyMK2
     public class Program
     {
         public static string Input = string.Empty;
+
         public static GameScreen CurrScreen;
         public static DefaultSet Setting;
-        public static Font DefaultFont;
+
+        public static Font DefaultFont = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
+        public static Texture2D LogoImage = Raylib.LoadTexture("Logo_RhythmMarble.png");
+
         public static bool KeyProcessing = false;
-        public static bool IsSpinning = false;
-        public static bool StopTriggered = false;
+        public static bool IsSpinning;
+        public static bool StopTriggered;
+        public static bool OptionSelected;
+
         public static float Angle = 180;
-        public static float Theta = 2;
+        public static float Theta = 50;
 
         private static void Main()
         {
             Raylib.InitWindow(1280, 720, "황금열쇠");
             Raylib.SetTargetFPS(60);
-            DefaultFont = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
             CurrScreen = GameScreen.Connect;
             ReadFile();
 
@@ -33,7 +38,7 @@ namespace GoldenKeyMK2
                     case GameScreen.Wheel:
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
                         {
-                            if (!IsSpinning) IsSpinning = true;
+                            if (!IsSpinning && !OptionSelected) IsSpinning = true;
                             else if (!StopTriggered) StopTriggered = true;
                         }
                         break;
@@ -48,26 +53,23 @@ namespace GoldenKeyMK2
                         break;
                     case GameScreen.Wheel:
                         Raylib.DrawFPS(8, 8);
-                        if (IsSpinning)
-                        {
-                            Angle -= Theta;
-                            if (Angle < 0) Angle += 360f;
-                        }
+                        Angle = Wheel.RotateWheel(Angle, Theta);
                         if (StopTriggered) Theta -= (float)(1 / Math.PI);
                         Wheel.DrawWheel(Angle);
                         Panel.DrawPanels();
-                        if (Theta <= 0) 
+                        if (Theta <= 0)
                         {
                             IsSpinning = false;
-                            StopTriggered = false;
-                            Theta = 2;
+                            OptionSelected = true;
                         }
                         Wheel.PrintOption(Angle);
+                        if (OptionSelected) Panel.Surprise();
                         break;
                 }
                 Raylib.EndDrawing();
             }
             Raylib.UnloadFont(DefaultFont);
+            Raylib.UnloadTexture(LogoImage);
             Raylib.CloseWindow();
         }
 

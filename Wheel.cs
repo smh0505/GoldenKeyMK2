@@ -7,7 +7,7 @@ namespace GoldenKeyMK2
     {
         public static List<Option> Options = new List<Option>();
         public static List<string> WaitingOptions = new List<string>();
-        private static Random _rnd = new Random();
+        private static readonly Random Rnd = new Random();
 
         public static int Sum
         {
@@ -21,7 +21,7 @@ namespace GoldenKeyMK2
 
         public static void NewOption(string name)
         {
-            var color = new Color(_rnd.Next(256), _rnd.Next(256), _rnd.Next(256), 255);
+            var color = new Color(Rnd.Next(256), Rnd.Next(256), Rnd.Next(256), 255);
             var newOption = new Option(name, color, 1);
             Options.Add(newOption);
         }
@@ -40,12 +40,18 @@ namespace GoldenKeyMK2
             }
         }
 
-        public static void RemoveOption()
+        public static void RemoveOption(Option option)
         {
-            
+            int id = Options.IndexOf(option);
+            Options.Remove(option);
+            if (option.Count > 1)
+            {
+                var newOption = new Option(option.Name, option.Color, option.Count - 1);
+                Options.Insert(id, newOption);
+            }
         }
 
-        public static void PrintOption(float angle)
+        public static Option Result(float angle)
         {
             float tau = 540f - angle;
             int id = (int)Math.Floor((tau >= 360f ? tau - 360 : tau) / (360f / Sum));
@@ -61,9 +67,13 @@ namespace GoldenKeyMK2
                     idCount += option.Count;
                 }
             }
+            return target;
+        }
 
+        public static void PrintOption(float angle)
+        {
+            Option target = Result(angle);
             int x = 440 - (int)(Raylib.MeasureTextEx(Program.DefaultFont, target.Name, 48, 0).X / 2);
-
             Raylib.DrawTextEx(Program.DefaultFont, target.Name, new Vector2(x, 6), 48, 0, Color.BLACK);
         }
 
@@ -79,6 +89,17 @@ namespace GoldenKeyMK2
             }
 
             Raylib.DrawTriangle(new Vector2(420, 60), new Vector2(440, 100), new Vector2(460, 60), Color.BLACK);
+        }
+
+        public static float RotateWheel(float startAngle, float rotateAngle)
+        {
+            float a = startAngle;
+            if (Program.IsSpinning)
+            {
+                a -= rotateAngle;
+                if (a < 0) a += 360f;
+            }
+            return a;
         }
     }
 }
