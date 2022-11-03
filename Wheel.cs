@@ -53,21 +53,25 @@ namespace GoldenKeyMK2
 
         public static Option Result(float angle)
         {
-            float tau = 540f - angle;
-            int id = (int)Math.Floor((tau >= 360f ? tau - 360 : tau) / (360f / Sum));
-
-            Option target = Options[0];
-            int idCount = 0;
-            foreach (var option in Options)
+            if (Options.Count > 0)
             {
-                if (idCount > id) break;
-                else 
+                float tau = 540f - angle;
+                int id = (int)Math.Floor((tau >= 360f ? tau - 360 : tau) / (360f / Sum));
+
+                Option target = Options[0];
+                int idCount = 0;
+                foreach (var option in Options)
                 {
-                    target = option;
-                    idCount += option.Count;
+                    if (idCount > id) break;
+                    else
+                    {
+                        target = option;
+                        idCount += option.Count;
+                    }
                 }
+                return target;
             }
-            return target;
+            return new Option(string.Empty, Color.WHITE, 1);
         }
 
         public static void PrintOption(float angle)

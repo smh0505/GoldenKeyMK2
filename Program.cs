@@ -92,7 +92,8 @@ namespace GoldenKeyMK2
                 var data = r.ReadToEnd();
                 if (!string.IsNullOrEmpty(data)) Setting = JsonConvert.DeserializeObject<DefaultSet>(data);
                 if (!string.IsNullOrEmpty(Setting.Key)) Input = Setting.Key;
-                if (Setting.Values != null)foreach (string option in Setting.Values) Wheel.AddOption(option);
+                if (Setting.Values != null) foreach (string option in Setting.Values) Wheel.AddOption(option);
+                else Setting.Values = new List<string>();
                 r.Close();
             }
         }
