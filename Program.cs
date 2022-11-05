@@ -99,8 +99,7 @@ namespace GoldenKeyMK2
 
         public static void Connect()
         {
-            //Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
-            Uri uri = new Uri("wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self");
+            Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
             using (var client = new WebsocketClient(uri))
             {
                 client.MessageReceived.Subscribe(msg =>
