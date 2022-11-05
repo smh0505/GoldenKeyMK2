@@ -23,7 +23,6 @@ namespace GoldenKeyMK2
         public static float Angle = 180;
         public static float Theta = 50;
 
-        public static Thread DonationThread = new Thread(Connect);
         private static readonly ManualResetEvent ExitEvent = new ManualResetEvent(false);
 
         private static void Main()
@@ -100,7 +99,8 @@ namespace GoldenKeyMK2
 
         public static void Connect()
         {
-            Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
+            //Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
+            Uri uri = new Uri("wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self");
             using (var client = new WebsocketClient(uri))
             {
                 client.MessageReceived.Subscribe(msg =>

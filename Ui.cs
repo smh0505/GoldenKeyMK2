@@ -26,7 +26,7 @@ namespace GoldenKeyMK2
                     StreamWriter w = new StreamWriter("default.json");
                     await w.WriteAsync(JsonConvert.SerializeObject(Program.Setting));
                     w.Close();
-                    Program.DonationThread.Start();
+                    Program.Connect();
                 }
                 else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
                 Program.KeyProcessing = false;
