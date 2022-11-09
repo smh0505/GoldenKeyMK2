@@ -5,19 +5,20 @@ using Newtonsoft.Json;
 
 namespace GoldenKeyMK2
 {
-    public class Ui
+    public class Login
     {
         public static string? Payload;
         private static string _alert = "Enter 키를 눌러 연결합니다.";
 
         public static async void GetPassword()
         {
-            int key = Raylib.GetCharPressed();
-            if (key is >= 32 and <= 125) Program.Input += ((char)key).ToString();
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) && Program.Input.Length > 0) Program.Input = Program.Input.Remove(Program.Input.Length - 1);
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+            else if ((Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_RIGHT_CONTROL)) && Raylib.IsKeyPressed(KeyboardKey.KEY_V))
+                Program.Input += Raylib.GetClipboardText_();
+            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAUSE)) Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
+            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
-                Program.KeyProcessing = true;
+                Program.Switches["KeyProcessing"] = true;
                 await LoadPayload(Program.Input);
                 if (!string.IsNullOrEmpty(Payload)) 
                 {
@@ -29,8 +30,9 @@ namespace GoldenKeyMK2
                     Program.Connect();
                 }
                 else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
-                Program.KeyProcessing = false;
+                Program.Switches["KeyProcessing"] = false;
             }
+            else if (Raylib.GetCharPressed() != 0)Program.Input += ((char)Raylib.GetCharPressed()).ToString();
         }
 
         public static void DrawConnectScreen(string input)
@@ -42,8 +44,12 @@ namespace GoldenKeyMK2
 
             Raylib.DrawRectangle(12, 76, 650, 40, Color.LIGHTGRAY);
             Raylib.DrawRectangleLines(12, 76, 650, 40, Color.DARKGRAY);
-            Raylib.DrawTextEx(Program.DefaultFont, 
-                secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0, secret.Length >= 40 ? 40 : secret.Length), 
+            Raylib.DrawTextEx(Program.DefaultFont,
+                Program.Switches["TextShowing"]
+                    ? input.Substring(input.Length >= 40 ? input.Length - 40 : 0,
+                        input.Length >= 40 ? 40 : input.Length)
+                    : secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0,
+                        secret.Length >= 40 ? 40 : secret.Length),
                 new Vector2(16, 80), 32, 0, Color.BLACK);
 
             Raylib.DrawTextEx(Program.DefaultFont, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);

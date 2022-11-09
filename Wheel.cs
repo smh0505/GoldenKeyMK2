@@ -19,6 +19,24 @@ namespace GoldenKeyMK2
             }
         }
 
+        public static void UpdateWheel()
+        {
+            if (!Program.Switches["IsSpinning"] && !Program.Switches["OptionSelected"] && WaitingOptions.Count > 0)
+            {
+                foreach (var option in WaitingOptions) Wheel.AddOption(option);
+                WaitingOptions.Clear();
+            }
+        }
+
+        public static void TriggerWheel()
+        {
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
+            {
+                if (!Program.Switches["IsSpinning"] && !Program.Switches["OptionSelected"]) Program.Switches["IsSpinning"] = true;
+                else if (!Program.Switches["StopTriggered"]) Program.Switches["StopTriggered"] = true;
+            }
+        }
+
         public static void NewOption(string name)
         {
             var color = new Color(Rnd.Next(256), Rnd.Next(256), Rnd.Next(256), 255);
@@ -98,7 +116,7 @@ namespace GoldenKeyMK2
         public static float RotateWheel(float startAngle, float rotateAngle)
         {
             float a = startAngle;
-            if (Program.IsSpinning)
+            if (Program.Switches["IsSpinning"])
             {
                 a -= rotateAngle;
                 if (a < 0) a += 360f;

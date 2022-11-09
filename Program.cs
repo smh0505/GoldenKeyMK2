@@ -12,13 +12,17 @@ namespace GoldenKeyMK2
         public static GameScreen CurrScreen;
         public static DefaultSet Setting;
 
-        public static Font DefaultFont = Raylib.LoadFontEx("neodgm.ttf", 32, null, 65535);
+        public static Font DefaultFont = Raylib.LoadFont("neodgm.fnt");
         public static Texture2D LogoImage = Raylib.LoadTexture("Logo_RhythmMarble.png");
 
-        public static bool KeyProcessing = false;
-        public static bool IsSpinning;
-        public static bool StopTriggered;
-        public static bool OptionSelected;
+        public static Dictionary<string, bool> Switches = new Dictionary<string, bool>()
+        {
+            {"KeyProcessing", false},
+            {"IsSpinning", false},
+            {"StopTriggered", false},
+            {"OptionSelected", false},
+            {"TextShowing", false}
+        };
 
         public static float Angle = 180;
         public static float Theta = 50;
@@ -34,47 +38,10 @@ namespace GoldenKeyMK2
 
             while (!Raylib.WindowShouldClose())
             {
-                switch (CurrScreen)
-                {
-                    case GameScreen.Connect:
-                        if (!KeyProcessing) Ui.GetPassword();
-                        break;
-                    case GameScreen.Wheel:
-                        if (!IsSpinning && !OptionSelected && Wheel.WaitingOptions.Count > 0)
-                        {
-                            foreach (var option in Wheel.WaitingOptions) Wheel.AddOption(option);
-                            Wheel.WaitingOptions.Clear();
-                        }
-                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
-                        {
-                            if (!IsSpinning && !OptionSelected) IsSpinning = true;
-                            else if (!StopTriggered) StopTriggered = true;
-                        }
-                        break;
-                }
-
+                Process(CurrScreen);
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.WHITE);
-                switch (CurrScreen)
-                {
-                    case GameScreen.Connect:
-                        Ui.DrawConnectScreen(Input);
-                        break;
-                    case GameScreen.Wheel:
-                        Raylib.DrawFPS(8, 8);
-                        Angle = Wheel.RotateWheel(Angle, Theta);
-                        if (StopTriggered) Theta -= (float)(1 / Math.PI);
-                        Wheel.DrawWheel(Angle);
-                        Panel.DrawPanels();
-                        if (Theta <= 0)
-                        {
-                            IsSpinning = false;
-                            OptionSelected = true;
-                        }
-                        Wheel.PrintOption(Angle);
-                        if (OptionSelected) Panel.Surprise();
-                        break;
-                }
+                Screen(CurrScreen);
                 Raylib.EndDrawing();
             }
             Raylib.UnloadFont(DefaultFont);
@@ -99,7 +66,7 @@ namespace GoldenKeyMK2
 
         public static void Connect()
         {
-            Uri uri = new Uri("wss://toon.at:8071/" + Ui.Payload);
+            Uri uri = new Uri("wss://toon.at:8071/" + Login.Payload);
             using (var client = new WebsocketClient(uri))
             {
                 client.MessageReceived.Subscribe(msg =>
@@ -113,6 +80,43 @@ namespace GoldenKeyMK2
                 });
                 client.Start();
                 ExitEvent.WaitOne();
+            }
+        }
+
+        public static void Process(GameScreen currScreen)
+        {
+            switch (currScreen)
+            {
+                case GameScreen.Connect:
+                    if (!Switches["KeyProcessing"]) Login.GetPassword();
+                    break;
+                case GameScreen.Wheel:
+                    Wheel.UpdateWheel();
+                    Wheel.TriggerWheel();
+                    break;
+            }
+        }
+
+        public static void Screen(GameScreen currScreen)
+        {
+            switch (currScreen)
+            {
+                case GameScreen.Connect:
+                    Login.DrawConnectScreen(Input);
+                    break;
+                case GameScreen.Wheel:
+                    Angle = Wheel.RotateWheel(Angle, Theta);
+                    if (Switches["StopTriggered"]) Theta -= (float)(1 / Math.PI);
+                    Wheel.DrawWheel(Angle);
+                    Panel.DrawPanels();
+                    if (Theta <= 0)
+                    {
+                        Switches["IsSpinning"] = false;
+                        Switches["OptionSelected"] = true;
+                    }
+                    Wheel.PrintOption(Angle);
+                    if (Switches["OptionSelected"]) Panel.Surprise();
+                    break;
             }
         }
     }
