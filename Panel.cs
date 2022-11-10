@@ -41,7 +41,7 @@ namespace GoldenKeyMK2
             }
             else Marquee(optionList);
 
-            if (!Program.Switches["IsSpinning"] && !Program.Switches["OptionSelected"])
+            if (!Program.Switches["IsSpinning"] && !Program.Switches["IsSelected"])
                 Raylib.DrawTextEx(Program.DefaultFont, "스페이스바를 눌러 돌림판 돌리기", new Vector2(8, 696), 16, 0, Color.GRAY);
             else if (!Program.Switches["StopTriggered"])
                 Raylib.DrawTextEx(Program.DefaultFont, "스페이스바를 눌러 돌림판 멈추기", new Vector2(8, 696), 16, 0, Color.GRAY);
@@ -82,7 +82,7 @@ namespace GoldenKeyMK2
                 _frameCount2 = 0;
                 _fadeCount = 1f;
                 Wheel.RemoveOption(current);
-                Program.Switches["OptionSelected"] = false;
+                Program.Switches["IsSelected"] = false;
                 Program.Switches["StopTriggered"] = false;
                 Program.Theta = 50;
             }

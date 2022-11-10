@@ -21,7 +21,7 @@ namespace GoldenKeyMK2
                 else if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAUSE)) Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
                 else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
                 {
-                    Program.Switches["KeyProcessing"] = true;
+                    Program.Switches["IsProcessing"] = true;
                     await LoadPayload(Program.Input);
                     if (!string.IsNullOrEmpty(Payload))
                     {
@@ -33,15 +33,19 @@ namespace GoldenKeyMK2
                         Program.Connect();
                     }
                     else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
-                    Program.Switches["KeyProcessing"] = false;
+                    Program.Switches["IsProcessing"] = false;
                 }
-                else if (Raylib.GetCharPressed() != 0)Program.Input += ((char)Raylib.GetCharPressed()).ToString();
+                else
+                {
+                    var x = Raylib.GetCharPressed();
+                    if (x != 0) Program.Input += ((char)x).ToString();
+                }
             }
         }
 
-        public static void DrawConnectScreen(string input)
+        public static void DrawConnectScreen()
         {
-            string secret = "".PadLeft(input.Length, '*');
+            string secret = "".PadLeft(Program.Input.Length, '*');
 
             Raylib.DrawTextEx(Program.DefaultFont, "투네이션 통합 위젯 URL", new Vector2(12, 12), 32, 0, Color.BLACK);
             Raylib.DrawTextEx(Program.DefaultFont, "https://toon.at/widget/alertbox/", new Vector2(12, 44), 32, 0, Color.BLACK);
@@ -50,8 +54,8 @@ namespace GoldenKeyMK2
             Raylib.DrawRectangleLines(12, 76, 650, 40, Color.DARKGRAY);
             Raylib.DrawTextEx(Program.DefaultFont,
                 Program.Switches["TextShowing"]
-                    ? input.Substring(input.Length >= 40 ? input.Length - 40 : 0,
-                        input.Length >= 40 ? 40 : input.Length)
+                    ? Program.Input.Substring(Program.Input.Length >= 40 ? Program.Input.Length - 40 : 0,
+                        Program.Input.Length >= 40 ? 40 : Program.Input.Length)
                     : secret.Substring(secret.Length >= 40 ? secret.Length - 40 : 0,
                         secret.Length >= 40 ? 40 : secret.Length),
                 new Vector2(16, 80), 32, 0, Color.BLACK);

@@ -17,12 +17,13 @@ namespace GoldenKeyMK2
 
         public static Dictionary<string, bool> Switches = new Dictionary<string, bool>()
         {
-            {"KeyProcessing", false},
+            {"IsProcessing", false},
             {"IsSpinning", false},
             {"StopTriggered", false},
-            {"OptionSelected", false},
+            {"IsSelected", false},
             {"TextShowing", false},
-            {"IsExiting", false}
+            {"IsExiting", false},
+            {"IsEditing", false},
         };
 
         public static float Angle = 180;
@@ -73,8 +74,7 @@ namespace GoldenKeyMK2
 
         public static void Connect()
         {
-            //Uri uri = new Uri("wss://toon.at:8071/" + Login.Payload);
-            Uri uri = new Uri("wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self");
+            Uri uri = new Uri("wss://toon.at:8071/" + Login.Payload);
             using (var client = new WebsocketClient(uri))
             {
                 client.MessageReceived.Subscribe(msg =>
@@ -95,14 +95,19 @@ namespace GoldenKeyMK2
         {
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
                 Switches["IsExiting"] = !Switches["IsExiting"];
+            if (currScreen == GameScreen.Wheel
+                && !Switches["IsExiting"] && !Switches["IsSpinning"] && !Switches["IsSelected"]
+                && Raylib.IsKeyPressed(KeyboardKey.KEY_TAB))
+                Switches["IsEditing"] = !Switches["IsEditing"];
             switch (currScreen)
             {
                 case GameScreen.Connect:
-                    if (!Switches["KeyProcessing"]) Login.GetPassword();
+                    if (!Switches["IsProcessing"]) Login.GetPassword();
                     break;
                 case GameScreen.Wheel:
                     Wheel.UpdateWheel();
                     Wheel.TriggerWheel();
+                    if (Switches["IsEditing"] && !Switches["IsExiting"]) EditMenu.Control();
                     break;
             }
         }
@@ -112,7 +117,7 @@ namespace GoldenKeyMK2
             switch (currScreen)
             {
                 case GameScreen.Connect:
-                    Login.DrawConnectScreen(Input);
+                    Login.DrawConnectScreen();
                     break;
                 case GameScreen.Wheel:
                     Angle = Wheel.RotateWheel(Angle, Theta);
@@ -122,12 +127,13 @@ namespace GoldenKeyMK2
                     if (Theta <= 0)
                     {
                         Switches["IsSpinning"] = false;
-                        Switches["OptionSelected"] = true;
+                        Switches["IsSelected"] = true;
                     }
                     Wheel.PrintOption(Angle);
-                    if (Switches["OptionSelected"]) Panel.Surprise();
+                    if (Switches["IsSelected"]) Panel.Surprise();
                     break;
             }
+            if (Switches["IsEditing"]) EditMenu.DrawEdit();
             if (Switches["IsExiting"]) ExitMenu.DrawExit();
         }
     }
