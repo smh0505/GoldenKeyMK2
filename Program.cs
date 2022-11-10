@@ -21,11 +21,14 @@ namespace GoldenKeyMK2
             {"IsSpinning", false},
             {"StopTriggered", false},
             {"OptionSelected", false},
-            {"TextShowing", false}
+            {"TextShowing", false},
+            {"IsExiting", false}
         };
 
         public static float Angle = 180;
         public static float Theta = 50;
+
+        public static bool Halt = false;
 
         private static readonly ManualResetEvent ExitEvent = new ManualResetEvent(false);
 
@@ -33,15 +36,19 @@ namespace GoldenKeyMK2
         {
             Raylib.InitWindow(1280, 720, "황금열쇠");
             Raylib.SetTargetFPS(60);
+            Raylib.SetExitKey(KeyboardKey.KEY_NULL);
             CurrScreen = GameScreen.Connect;
             ReadFile();
 
-            while (!Raylib.WindowShouldClose())
+            while (!Halt)
             {
                 Process(CurrScreen);
                 Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.WHITE);
-                Screen(CurrScreen);
+                if (Raylib.IsWindowFocused())
+                {
+                    Raylib.ClearBackground(Color.WHITE);
+                    Screen(CurrScreen);
+                }
                 Raylib.EndDrawing();
             }
             Raylib.UnloadFont(DefaultFont);
@@ -66,7 +73,8 @@ namespace GoldenKeyMK2
 
         public static void Connect()
         {
-            Uri uri = new Uri("wss://toon.at:8071/" + Login.Payload);
+            //Uri uri = new Uri("wss://toon.at:8071/" + Login.Payload);
+            Uri uri = new Uri("wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self");
             using (var client = new WebsocketClient(uri))
             {
                 client.MessageReceived.Subscribe(msg =>
@@ -85,6 +93,8 @@ namespace GoldenKeyMK2
 
         public static void Process(GameScreen currScreen)
         {
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                Switches["IsExiting"] = !Switches["IsExiting"];
             switch (currScreen)
             {
                 case GameScreen.Connect:
@@ -118,6 +128,7 @@ namespace GoldenKeyMK2
                     if (Switches["OptionSelected"]) Panel.Surprise();
                     break;
             }
+            if (Switches["IsExiting"]) ExitMenu.DrawExit();
         }
     }
 }

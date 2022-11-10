@@ -32,9 +32,9 @@ namespace GoldenKeyMK2
             var optionList = Wheel.Options;
             if (optionList.Count <= 30) foreach (var option in optionList)
             {
-                if (_frameCount != 0) _frameCount = 0;
-                if (_y != 0) _y = 0;
-                if (_index != 0) _index = 0;
+                _frameCount = 0;
+                _y = 0;
+                _index = 0;
                 Raylib.DrawRectangle(880, 0 + 24 * optionList.IndexOf(option), 400, 24, Raylib.Fade(option.Color, 0.5f));
                 Raylib.DrawTextEx(Program.DefaultFont, option.Name + " x " + option.Count.ToString(), 
                     new Vector2(884, 4 + 24 * optionList.IndexOf(option)), 16, 0, Color.BLACK);

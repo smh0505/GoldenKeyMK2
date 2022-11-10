@@ -30,7 +30,7 @@ namespace GoldenKeyMK2
 
         public static void TriggerWheel()
         {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
+            if (!Program.Switches["IsExiting"] && Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
             {
                 if (!Program.Switches["IsSpinning"] && !Program.Switches["OptionSelected"]) Program.Switches["IsSpinning"] = true;
                 else if (!Program.Switches["StopTriggered"]) Program.Switches["StopTriggered"] = true;

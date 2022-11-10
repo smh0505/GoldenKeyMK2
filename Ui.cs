@@ -12,27 +12,31 @@ namespace GoldenKeyMK2
 
         public static async void GetPassword()
         {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) && Program.Input.Length > 0) Program.Input = Program.Input.Remove(Program.Input.Length - 1);
-            else if ((Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_RIGHT_CONTROL)) && Raylib.IsKeyPressed(KeyboardKey.KEY_V))
-                Program.Input += Raylib.GetClipboardText_();
-            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAUSE)) Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
-            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+            if (!Program.Switches["IsExiting"])
             {
-                Program.Switches["KeyProcessing"] = true;
-                await LoadPayload(Program.Input);
-                if (!string.IsNullOrEmpty(Payload)) 
+                if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) && Program.Input.Length > 0)
+                    Program.Input = Program.Input.Remove(Program.Input.Length - 1);
+                else if ((Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_RIGHT_CONTROL)) && Raylib.IsKeyPressed(KeyboardKey.KEY_V))
+                    Program.Input += Raylib.GetClipboardText_();
+                else if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAUSE)) Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
+                else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
                 {
-                    Program.CurrScreen = GameScreen.Wheel;
-                    Program.Setting.Key = Program.Input;
-                    StreamWriter w = new StreamWriter("default.json");
-                    await w.WriteAsync(JsonConvert.SerializeObject(Program.Setting));
-                    w.Close();
-                    Program.Connect();
+                    Program.Switches["KeyProcessing"] = true;
+                    await LoadPayload(Program.Input);
+                    if (!string.IsNullOrEmpty(Payload))
+                    {
+                        Program.CurrScreen = GameScreen.Wheel;
+                        Program.Setting.Key = Program.Input;
+                        StreamWriter w = new StreamWriter("default.json");
+                        await w.WriteAsync(JsonConvert.SerializeObject(Program.Setting));
+                        w.Close();
+                        Program.Connect();
+                    }
+                    else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
+                    Program.Switches["KeyProcessing"] = false;
                 }
-                else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
-                Program.Switches["KeyProcessing"] = false;
+                else if (Raylib.GetCharPressed() != 0)Program.Input += ((char)Raylib.GetCharPressed()).ToString();
             }
-            else if (Raylib.GetCharPressed() != 0)Program.Input += ((char)Raylib.GetCharPressed()).ToString();
         }
 
         public static void DrawConnectScreen(string input)
@@ -53,6 +57,9 @@ namespace GoldenKeyMK2
                 new Vector2(16, 80), 32, 0, Color.BLACK);
 
             Raylib.DrawTextEx(Program.DefaultFont, _alert, new Vector2(20, 124), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "Ctrl+V: 붙여넣기", new Vector2(20, 140), 16, 0, Color.GRAY);
+            Raylib.DrawTextEx(Program.DefaultFont, "Pause: " + (Program.Switches["TextShowing"] ? "숨기기" : "표시하기"),
+                new Vector2(20, 156), 16, 0, Color.GRAY);
 
             Raylib.DrawTexture(Program.LogoImage, 781, 248, Raylib.Fade(Color.WHITE, 0.5f));
 
