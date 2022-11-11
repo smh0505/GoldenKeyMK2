@@ -26,11 +26,13 @@ namespace GoldenKeyMK2
     {
         public string Key;
         public List<string> Values;
+        public List<string> Records;
 
-        public DefaultSet(string key, List<string> values)
+        public DefaultSet(string key, List<string> values, List<string> records)
         {
             this.Key = key;
             this.Values = values;
+            this.Records = records;
         }
     }
 }

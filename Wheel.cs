@@ -21,7 +21,7 @@ namespace GoldenKeyMK2
 
         public static void UpdateWheel()
         {
-            if (!Program.Switches["IsSpinning"] && !Program.Switches["IsSelected"] && WaitingOptions.Count > 0)
+            if (WaitingOptions.Count > 0)
             {
                 foreach (var option in WaitingOptions) Wheel.AddOption(option);
                 WaitingOptions.Clear();
@@ -30,7 +30,7 @@ namespace GoldenKeyMK2
 
         public static void TriggerWheel()
         {
-            if (!Program.Switches["IsExiting"] && !Program.Switches["IsEditing"] && Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
             {
                 if (!Program.Switches["IsSpinning"] && !Program.Switches["IsSelected"]) Program.Switches["IsSpinning"] = true;
                 else if (!Program.Switches["StopTriggered"]) Program.Switches["StopTriggered"] = true;

@@ -45,6 +45,9 @@ namespace GoldenKeyMK2
                 Raylib.DrawTextEx(Program.DefaultFont, "스페이스바를 눌러 돌림판 돌리기", new Vector2(8, 696), 16, 0, Color.GRAY);
             else if (!Program.Switches["StopTriggered"])
                 Raylib.DrawTextEx(Program.DefaultFont, "스페이스바를 눌러 돌림판 멈추기", new Vector2(8, 696), 16, 0, Color.GRAY);
+
+            if (!Program.Switches["IsEditing"])
+                Raylib.DrawTextEx(Program.DefaultFont, "Tab키를 눌러 수정 메뉴 열기", new Vector2(8, 680), 16, 0, Color.GRAY);
         }
 
         private static void Marquee(List<Option> optionList)

@@ -32,7 +32,7 @@
 
 ![image](https://user-images.githubusercontent.com/42821865/199405009-b0054eac-b59d-4baa-8962-966ec1322029.png)
 
-3. 앱 실행 직후 첫 화면에서 투네이션 통합 위젯 비밀키를 입력해주세요. `Ctrl+C` `Ctrl+V` 는 아직 제공하지 않습니다. 추후 업데이트 예정입니다.
+3. 앱 실행 직후 첫 화면에서 투네이션 통합 위젯 비밀키를 입력해주세요. Ver.1.1부터 `Ctrl+V` 기능이 추가되었습니다.
 
 ![image](https://user-images.githubusercontent.com/42821865/199405094-87e90ce9-6e20-4dc9-838a-c897cf2b3c5e.png)
 

@@ -24,6 +24,7 @@ namespace GoldenKeyMK2
             {"TextShowing", false},
             {"IsExiting", false},
             {"IsEditing", false},
+            {"IsLoading", false}
         };
 
         public static float Angle = 180;
@@ -66,8 +67,13 @@ namespace GoldenKeyMK2
                 var data = r.ReadToEnd();
                 if (!string.IsNullOrEmpty(data)) Setting = JsonConvert.DeserializeObject<DefaultSet>(data);
                 if (!string.IsNullOrEmpty(Setting.Key)) Input = Setting.Key;
-                if (Setting.Values != null) foreach (string option in Setting.Values) Wheel.AddOption(option);
-                else Setting.Values = new List<string>();
+                Setting.Values ??= new List<string>();
+                if (Setting.Records is not null && Setting.Records.Any()) Switches["IsLoading"] = true;
+                else
+                {
+                    Setting.Records = new List<string>();
+                    Wheel.WaitingOptions.AddRange(Setting.Values);
+                }
                 r.Close();
             }
         }
@@ -91,28 +97,33 @@ namespace GoldenKeyMK2
             }
         }
 
-        public static void Process(GameScreen currScreen)
+        private static void Process(GameScreen currScreen)
         {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+            if (!Switches["IsSpinning"] && !Switches["IsSelected"] && Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
                 Switches["IsExiting"] = !Switches["IsExiting"];
-            if (currScreen == GameScreen.Wheel
-                && !Switches["IsExiting"] && !Switches["IsSpinning"] && !Switches["IsSelected"]
-                && Raylib.IsKeyPressed(KeyboardKey.KEY_TAB))
+            if (currScreen == GameScreen.Wheel && !Switches["IsExiting"] && !Switches["IsSpinning"]
+                && !Switches["IsSelected"] && Raylib.IsKeyPressed(KeyboardKey.KEY_TAB))
+            {
                 Switches["IsEditing"] = !Switches["IsEditing"];
+                EditMenu.ResetOptionIndex();
+                EditMenu.ResetOptionName();
+            }
+
             switch (currScreen)
             {
                 case GameScreen.Connect:
-                    if (!Switches["IsProcessing"]) Login.GetPassword();
+                    if (!Switches["IsProcessing"] && !Switches["IsExiting"] && !Switches["IsLoading"])
+                        Login.GetPassword();
                     break;
                 case GameScreen.Wheel:
-                    Wheel.UpdateWheel();
-                    Wheel.TriggerWheel();
+                    if (!Switches["IsSpinning"] && !Switches["IsSelected"]) Wheel.UpdateWheel();
+                    if (!Switches["IsEditing"] && !Switches["IsExiting"]) Wheel.TriggerWheel();
                     if (Switches["IsEditing"] && !Switches["IsExiting"]) EditMenu.Control();
                     break;
             }
         }
 
-        public static void Screen(GameScreen currScreen)
+        private static void Screen(GameScreen currScreen)
         {
             switch (currScreen)
             {
@@ -120,21 +131,27 @@ namespace GoldenKeyMK2
                     Login.DrawConnectScreen();
                     break;
                 case GameScreen.Wheel:
-                    Angle = Wheel.RotateWheel(Angle, Theta);
-                    if (Switches["StopTriggered"]) Theta -= (float)(1 / Math.PI);
+                    CalculateAngle();
                     Wheel.DrawWheel(Angle);
                     Panel.DrawPanels();
-                    if (Theta <= 0)
-                    {
-                        Switches["IsSpinning"] = false;
-                        Switches["IsSelected"] = true;
-                    }
                     Wheel.PrintOption(Angle);
                     if (Switches["IsSelected"]) Panel.Surprise();
                     break;
             }
             if (Switches["IsEditing"]) EditMenu.DrawEdit();
+            if (Switches["IsLoading"]) Login.DrawLoad();
             if (Switches["IsExiting"]) ExitMenu.DrawExit();
+        }
+
+        private static void CalculateAngle()
+        {
+            Angle = Wheel.RotateWheel(Angle, Theta);
+            if (Switches["StopTriggered"]) Theta -= (float)(1 / Math.PI);
+            if (Theta <= 0)
+            {
+                Switches["IsSpinning"] = false;
+                Switches["IsSelected"] = true;
+            }
         }
     }
 }

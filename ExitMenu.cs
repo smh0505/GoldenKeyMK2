@@ -1,4 +1,5 @@
 using System.Numerics;
+using Newtonsoft.Json;
 using Raylib_cs;
 
 namespace GoldenKeyMK2
@@ -15,8 +16,8 @@ namespace GoldenKeyMK2
 
             var text1 = "프로그램을 종료하시겠습니까?";
             var text2 = "종료시 현재 진행 상황이 저장됩니다.";
-            Raylib.DrawTextEx(Program.DefaultFont, text1, new Vector2(640 - Raylib.MeasureTextEx(Program.DefaultFont, text1, 32, 0).X / 2, 256), 32, 0, Color.WHITE);
-            Raylib.DrawTextEx(Program.DefaultFont, text2, new Vector2(640 - Raylib.MeasureTextEx(Program.DefaultFont, text2, 32, 0).X / 2, 304), 32, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, text1, new Vector2(640 - Raylib.MeasureTextEx(Program.DefaultFont, text1, 48, 0).X / 2, 256), 48, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, text2, new Vector2(640 - Raylib.MeasureTextEx(Program.DefaultFont, text2, 32, 0).X / 2, 312), 32, 0, Color.WHITE);
 
             var text3 = "네";
             var text4 = "아니요";
@@ -32,7 +33,17 @@ namespace GoldenKeyMK2
         {
             if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), ExitButton))
             {
-                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT)) Program.Halt = true;
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+                {
+                    Program.Setting.Records.Clear();
+                    foreach (var option in Wheel.Options)
+                        for (int i = 0; i < option.Count; i++)
+                            Program.Setting.Records.Add(option.Name);
+                    StreamWriter w = new StreamWriter("default.json");
+                    w.Write(JsonConvert.SerializeObject(Program.Setting));
+                    w.Close();
+                    Program.Halt = true;
+                }
                 else Raylib.DrawRectangle(448, 400, 160, 64, Color.RED);
             }
             if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), CancelButton))
