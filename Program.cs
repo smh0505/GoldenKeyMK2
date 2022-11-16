@@ -18,14 +18,11 @@ namespace GoldenKeyMK2
         public static Dictionary<string, bool> Switches = new Dictionary<string, bool>()
         {
             {"IsProcessing", false},
-            {"IsSpinning", false},
-            {"StopTriggered", false},
-            {"IsSelected", false},
             {"TextShowing", false},
             {"IsExiting", false},
-            {"IsEditing", false},
             {"IsLoading", false}
         };
+        public static GameState State = GameState.Idle;
 
         public static float Angle = 180;
         public static float Theta = 50;
@@ -99,16 +96,9 @@ namespace GoldenKeyMK2
 
         private static void Process(GameScreen currScreen)
         {
-            if (!Switches["IsSpinning"] && !Switches["IsSelected"] && Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-                Switches["IsExiting"] = !Switches["IsExiting"];
-            if (currScreen == GameScreen.Wheel && !Switches["IsExiting"] && !Switches["IsSpinning"]
-                && !Switches["IsSelected"] && Raylib.IsKeyPressed(KeyboardKey.KEY_TAB))
-            {
-                Switches["IsEditing"] = !Switches["IsEditing"];
-                EditMenu.ResetOptionIndex();
-                EditMenu.ResetOptionName();
-            }
-
+            if (State < (GameState)2)
+                if (Raylib.WindowShouldClose()) Switches["IsExiting"] = true;
+                else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))Switches["IsExiting"] = !Switches["IsExiting"];
             switch (currScreen)
             {
                 case GameScreen.Connect:
@@ -116,9 +106,22 @@ namespace GoldenKeyMK2
                         Login.GetPassword();
                     break;
                 case GameScreen.Wheel:
-                    if (!Switches["IsSpinning"] && !Switches["IsSelected"]) Wheel.UpdateWheel();
-                    if (!Switches["IsEditing"] && !Switches["IsExiting"]) Wheel.TriggerWheel();
-                    if (Switches["IsEditing"] && !Switches["IsExiting"]) EditMenu.Control();
+                    if (State < (GameState)2) Wheel.UpdateWheel();
+                    if (!Switches["IsExiting"])
+                    {
+                        switch (State)
+                        {
+                            case GameState.Idle:
+                                IdleControl();
+                                break;
+                            case GameState.Editing:
+                                EditMenu.Control();
+                                break;
+                            case GameState.Spinning:
+                                if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE)) State = GameState.Stopping;
+                                break;
+                        }
+                    }
                     break;
             }
         }
@@ -131,27 +134,62 @@ namespace GoldenKeyMK2
                     Login.DrawConnectScreen();
                     break;
                 case GameScreen.Wheel:
-                    CalculateAngle();
+                    if (State >= GameState.Spinning && State < GameState.Saving) CalculateAngle();
                     Wheel.DrawWheel(Angle);
                     Panel.DrawPanels();
+                    Panel.DrawControl();
                     Wheel.PrintOption(Angle);
-                    if (Switches["IsSelected"]) Panel.Surprise();
+                    if (State == GameState.Result) Panel.Surprise();
+                    if (State == GameState.Editing) EditMenu.DrawEdit();
+                    if (State == GameState.Saving) SaveMenu.DrawSave();
                     break;
             }
-            if (Switches["IsEditing"]) EditMenu.DrawEdit();
             if (Switches["IsLoading"]) Login.DrawLoad();
             if (Switches["IsExiting"]) ExitMenu.DrawExit();
         }
 
         private static void CalculateAngle()
         {
-            Angle = Wheel.RotateWheel(Angle, Theta);
-            if (Switches["StopTriggered"]) Theta -= (float)(1 / Math.PI);
-            if (Theta <= 0)
+            Angle = Angle < Theta ? Angle - Theta + 360f : Angle - Theta;
+            if (State == GameState.Stopping) Theta = Theta > 0 ? Theta - (float)(1 / Math.PI) : 0;
+            if (Theta == 0) State = GameState.Result;
+        }
+
+        private static void IdleControl()
+        {
+            switch ((KeyboardKey)Raylib.GetKeyPressed())
             {
-                Switches["IsSpinning"] = false;
-                Switches["IsSelected"] = true;
+                case KeyboardKey.KEY_SPACE:
+                    State = GameState.Spinning;
+                    break;
+                case KeyboardKey.KEY_TAB:
+                    State = GameState.Editing;
+                    EditMenu.ResetOptionIndex();
+                    EditMenu.ResetOptionName();
+                    break;
+                case KeyboardKey.KEY_F2:
+                    State = GameState.Saving;
+                    break;
             }
+
+            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), Panel.EditButton))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+                {
+                    State = GameState.Editing;
+                    EditMenu.ResetOptionIndex();
+                    EditMenu.ResetOptionName();
+                }
+                else Panel.EditColor = Color.GREEN;
+            }
+            else Panel.EditColor = Raylib.Fade(Color.GREEN, 0.5f);
+
+            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), Panel.SaveButton))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT)) State = GameState.Saving;
+                else Panel.SaveColor = Color.DARKGREEN;
+            }
+            else Panel.SaveColor = Raylib.Fade(Color.DARKGREEN, 0.5f);
         }
     }
 }

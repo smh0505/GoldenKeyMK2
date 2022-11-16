@@ -7,11 +7,15 @@ namespace GoldenKeyMK2
     {
         public static int Idx;
 
-        private static readonly Rectangle ModeButton = new Rectangle(56, 616, 120, 48);
+        private static readonly Rectangle ModeButton = new Rectangle(56, 616, 160, 48);
+        private static readonly Rectangle SubmitButton = new Rectangle(232, 616, 160, 48);
+        private static readonly Rectangle CloseButton = new Rectangle(664, 616, 160, 48);
         private static bool _mode;
         private static string _modeString = string.Empty;
         private static string _optionName = String.Empty;
         private static Color _modeColor;
+        private static Color _submitColor;
+        private static Color _closeColor;
         private static int _optionCount = 1;
 
         public static void DrawEdit()
@@ -54,15 +58,22 @@ namespace GoldenKeyMK2
                 new Vector2(64 + 52 - Raylib.MeasureTextEx(Program.DefaultFont, _optionCount.ToString(), 48, 0).X / 2, 464), 48, 0, Color.BLACK);
 
             // Text
-            Raylib.DrawTextEx(Program.DefaultFont, "상/하 방향키: 이전/다음 항목", new Vector2(192, 456), 16, 0, Color.WHITE);
-            Raylib.DrawTextEx(Program.DefaultFont, "좌/우 방향키: 개수 줄이기/늘이기", new Vector2(192, 480), 16, 0, Color.WHITE);
-            Raylib.DrawTextEx(Program.DefaultFont, "Enter키를 누르면 " + _modeString + "됩니다.", new Vector2(192, 504), 16, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, "상/하: 이전/다음 항목", new Vector2(192, 456), 16, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, "좌/우: 개수 줄이기/늘이기", new Vector2(192, 472), 16, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, "F1: 모드 변경", new Vector2(192, 488), 16, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, "F2: 디폴트로 저장", new Vector2(192, 504), 16, 0, Color.WHITE);
+            Raylib.DrawTextEx(Program.DefaultFont, "Enter: " + _modeString + " 적용", new Vector2(192, 520), 16, 0, Color.WHITE);
 
-            // _modeButton
-            Raylib.DrawTextEx(Program.DefaultFont, "모드 변경 버튼", new Vector2(56, 584), 16, 0, Color.WHITE);
-            Raylib.DrawRectangle(56, 616, 120, 48, _modeColor);
+            // Buttons
+            Raylib.DrawRectangle(56, 616, 160, 48, _modeColor);
+            Raylib.DrawRectangle(232, 616, 160, 48, _submitColor);
+            Raylib.DrawRectangle(664, 616, 160, 48, _closeColor);
+            Raylib.DrawTextEx(Program.DefaultFont, "모드 변경",
+                new Vector2(136 - Raylib.MeasureTextEx(Program.DefaultFont, "모드 변경", 32, 0).X / 2, 624), 32, 0, Color.BLACK);
             Raylib.DrawTextEx(Program.DefaultFont, _modeString,
-                new Vector2(116 - Raylib.MeasureTextEx(Program.DefaultFont, _modeString, 32, 0).X / 2, 624), 32, 0, Color.BLACK);
+                new Vector2(312 - Raylib.MeasureTextEx(Program.DefaultFont, _modeString, 32, 0).X / 2, 624), 32, 0, Color.BLACK);
+            Raylib.DrawTextEx(Program.DefaultFont, "닫기",
+                new Vector2(744 - Raylib.MeasureTextEx(Program.DefaultFont, "닫기", 32, 0).X / 2, 624), 32, 0, Color.BLACK);
         }
 
         public static void ResetOptionIndex()
@@ -75,52 +86,6 @@ namespace GoldenKeyMK2
         {
             _optionName = (_mode && Wheel.Options.Any()) ? Wheel.Options[Idx].Name : string.Empty;
             _optionCount = (_mode && Wheel.Options.Any()) ? Wheel.Options[Idx].Count : 1;
-        }
-
-        public static void Control()
-        {
-            switch ((KeyboardKey)Raylib.GetKeyPressed())
-            {
-                case KeyboardKey.KEY_UP:
-                    if (Wheel.Options.Count > 0) Idx = Idx == 0 ? Wheel.Options.Count - 1 : Idx - 1;
-                    ResetOptionName();
-                    break;
-                case KeyboardKey.KEY_DOWN:
-                    if (Wheel.Options.Count > 0) Idx = Idx == Wheel.Options.Count - 1 ? 0 : Idx + 1;
-                    ResetOptionName();
-                    break;
-                case KeyboardKey.KEY_LEFT:
-                    if (_mode) _optionCount = _optionCount == 0 ? 0 : _optionCount - 1;
-                    else _optionCount = _optionCount == 1 ? 1 : _optionCount - 1;
-                    break;
-                case KeyboardKey.KEY_RIGHT:
-                    _optionCount++;
-                    break;
-                case KeyboardKey.KEY_BACKSPACE:
-                    if (_optionName.Length > 0) _optionName = _optionName.Remove(_optionName.Length - 1);
-                    break;
-                case KeyboardKey.KEY_ENTER:
-                    if (_mode) Modify();
-                    else for (int _ = 0; _ < _optionCount; _++) Wheel.WaitingOptions.Add(_optionName);
-                    Program.Switches["IsEditing"] = false;
-                    break;
-                default:
-                    int x = Raylib.GetCharPressed();
-                    if (x != 0) _optionName += ((char)x).ToString();
-                    break;
-            }
-
-            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), ModeButton))
-            {
-                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
-                {
-                    _mode = !_mode;
-                    ResetOptionName();
-                }
-                else _modeColor = Color.YELLOW;
-            }
-            else _modeColor = Raylib.Fade(Color.YELLOW, 0.5f);
-            _modeString = _mode ? "수정" : "추가";
         }
 
         private static void Index(out int before, out int after)
@@ -160,6 +125,87 @@ namespace GoldenKeyMK2
                     Wheel.Options.Insert(Idx, newOption);
                 }
             }
+        }
+
+        public static void Control()
+        {
+            DetectKeyboard();
+            DetectButton();
+            _modeString = _mode ? "수정" : "추가";
+        }
+
+        private static void DetectKeyboard()
+        {
+            switch ((KeyboardKey)Raylib.GetKeyPressed())
+            {
+                case KeyboardKey.KEY_UP:
+                    if (Wheel.Options.Count > 0) Idx = Idx == 0 ? Wheel.Options.Count - 1 : Idx - 1;
+                    ResetOptionName();
+                    break;
+                case KeyboardKey.KEY_DOWN:
+                    if (Wheel.Options.Count > 0) Idx = Idx == Wheel.Options.Count - 1 ? 0 : Idx + 1;
+                    ResetOptionName();
+                    break;
+                case KeyboardKey.KEY_LEFT:
+                    if (_mode) _optionCount = _optionCount == 0 ? 0 : _optionCount - 1;
+                    else _optionCount = _optionCount == 1 ? 1 : _optionCount - 1;
+                    break;
+                case KeyboardKey.KEY_RIGHT:
+                    _optionCount++;
+                    break;
+                case KeyboardKey.KEY_BACKSPACE:
+                    if (_optionName.Length > 0) _optionName = _optionName.Remove(_optionName.Length - 1);
+                    break;
+                case KeyboardKey.KEY_ENTER:
+                    if (_mode) Modify();
+                    else for (int _ = 0; _ < _optionCount; _++) Wheel.WaitingOptions.Add(_optionName);
+                    Program.State = GameState.Idle;
+                    break;
+                case KeyboardKey.KEY_TAB:
+                    Program.State = GameState.Idle;
+                    break;
+                case KeyboardKey.KEY_F1:
+                    _mode = !_mode;
+                    ResetOptionName();
+                    break;
+                default:
+                    int x = Raylib.GetCharPressed();
+                    if (x != 0) _optionName += ((char)x).ToString();
+                    break;
+            }
+        }
+
+        private static void DetectButton()
+        {
+            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), ModeButton))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+                {
+                    _mode = !_mode;
+                    ResetOptionName();
+                }
+                else _modeColor = Color.YELLOW;
+            }
+            else _modeColor = Raylib.Fade(Color.YELLOW, 0.5f);
+
+            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), SubmitButton))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
+                {
+                    if (_mode) Modify();
+                    else for (int _ = 0; _ < _optionCount; _++) Wheel.WaitingOptions.Add(_optionName);
+                    Program.State = GameState.Idle;
+                }
+                else _submitColor = Color.SKYBLUE;
+            }
+            else _submitColor = Raylib.Fade(Color.SKYBLUE, 0.5f);
+
+            if (Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), CloseButton))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT)) Program.State = GameState.Idle;
+                else _closeColor = Color.MAROON;
+            }
+            else _closeColor = Raylib.Fade(Color.MAROON, 0.5f);
         }
     }
 }

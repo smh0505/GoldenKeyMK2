@@ -14,28 +14,34 @@ namespace GoldenKeyMK2
 
         public static async void GetPassword()
         {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_BACKSPACE) && Program.Input.Length > 0)
-                Program.Input = Program.Input.Remove(Program.Input.Length - 1);
-            else if ((Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_RIGHT_CONTROL)) && Raylib.IsKeyPressed(KeyboardKey.KEY_V))
-                Program.Input += Raylib.GetClipboardText_();
-            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_PAUSE)) Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
-            else if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+            switch ((KeyboardKey)Raylib.GetKeyPressed())
             {
-                Program.Switches["IsProcessing"] = true;
-                await LoadPayload(Program.Input);
-                if (!string.IsNullOrEmpty(Payload))
-                {
-                    Program.CurrScreen = GameScreen.Wheel;
-                    Program.Setting.Key = Program.Input;
-                    Program.Connect();
-                }
-                else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
-                Program.Switches["IsProcessing"] = false;
-            }
-            else
-            {
-                var x = Raylib.GetCharPressed();
-                if (x != 0) Program.Input += ((char)x).ToString();
+                case KeyboardKey.KEY_BACKSPACE:
+                    if (Program.Input.Length > 0) Program.Input = Program.Input.Remove(Program.Input.Length - 1);
+                    break;
+                case KeyboardKey.KEY_V:
+                    if (Raylib.IsKeyDown(KeyboardKey.KEY_LEFT_CONTROL) || Raylib.IsKeyDown(KeyboardKey.KEY_RIGHT_CONTROL))
+                        Program.Input += Raylib.GetClipboardText_();
+                    break;
+                case KeyboardKey.KEY_PAUSE:
+                    Program.Switches["TextShowing"] = !Program.Switches["TextShowing"];
+                    break;
+                case KeyboardKey.KEY_ENTER:
+                    Program.Switches["IsProcessing"] = true;
+                    await LoadPayload(Program.Input);
+                    if (!string.IsNullOrEmpty(Payload))
+                    {
+                        Program.CurrScreen = GameScreen.Wheel;
+                        Program.Setting.Key = Program.Input;
+                        Program.Connect();
+                    }
+                    else _alert = "연결에 실패했습니다. 다시 시도해주세요.";
+                    Program.Switches["IsProcessing"] = false;
+                    break;
+                default:
+                    var x = Raylib.GetCharPressed();
+                    if (x != 0) Program.Input += ((char)x).ToString();
+                    break;
             }
         }
 

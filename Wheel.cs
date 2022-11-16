@@ -28,15 +28,6 @@ namespace GoldenKeyMK2
             }
         }
 
-        public static void TriggerWheel()
-        {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
-            {
-                if (!Program.Switches["IsSpinning"] && !Program.Switches["IsSelected"]) Program.Switches["IsSpinning"] = true;
-                else if (!Program.Switches["StopTriggered"]) Program.Switches["StopTriggered"] = true;
-            }
-        }
-
         public static void NewOption(string name)
         {
             var color = new Color(Rnd.Next(256), Rnd.Next(256), Rnd.Next(256), 255);
@@ -111,17 +102,6 @@ namespace GoldenKeyMK2
             }
 
             Raylib.DrawTriangle(new Vector2(420, 60), new Vector2(440, 100), new Vector2(460, 60), Color.BLACK);
-        }
-
-        public static float RotateWheel(float startAngle, float rotateAngle)
-        {
-            float a = startAngle;
-            if (Program.Switches["IsSpinning"])
-            {
-                a -= rotateAngle;
-                if (a < 0) a += 360f;
-            }
-            return a;
         }
     }
 }

@@ -8,6 +8,16 @@ namespace GoldenKeyMK2
         Wheel
     }
 
+    public enum GameState
+    {
+        Idle = 0,
+        Editing,
+        Spinning,
+        Stopping,
+        Result,
+        Saving
+    }
+
     public struct Option
     {
         public string Name;
