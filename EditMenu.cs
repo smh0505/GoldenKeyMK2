@@ -10,12 +10,16 @@ namespace GoldenKeyMK2
         private static readonly Rectangle ModeButton = new Rectangle(56, 616, 160, 48);
         private static readonly Rectangle SubmitButton = new Rectangle(232, 616, 160, 48);
         private static readonly Rectangle CloseButton = new Rectangle(664, 616, 160, 48);
+
         private static bool _mode;
+
         private static string _modeString = string.Empty;
         private static string _optionName = String.Empty;
+
         private static Color _modeColor;
         private static Color _submitColor;
         private static Color _closeColor;
+        
         private static int _optionCount = 1;
 
         public static void DrawEdit()

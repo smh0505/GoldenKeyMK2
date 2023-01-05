@@ -10,7 +10,7 @@ namespace GoldenKeyMK2
         public static string Input = string.Empty;
 
         public static GameScreen CurrScreen;
-        public static DefaultSet Setting;
+        public static DefaultSet Setting = new DefaultSet(string.Empty, new List<string>(), new List<string>());
 
         public static Font DefaultFont = Raylib.LoadFont("neodgm.fnt");
         public static Texture2D LogoImage = Raylib.LoadTexture("Logo_RhythmMarble.png");
@@ -64,12 +64,12 @@ namespace GoldenKeyMK2
                 var data = r.ReadToEnd();
                 if (!string.IsNullOrEmpty(data)) Setting = JsonConvert.DeserializeObject<DefaultSet>(data);
                 if (!string.IsNullOrEmpty(Setting.Key)) Input = Setting.Key;
-                Setting.Values ??= new List<string>();
-                if (Setting.Records is not null && Setting.Records.Any()) Switches["IsLoading"] = true;
+                if (Setting.Records.Any()) Switches["IsLoading"] = true;
                 else
                 {
                     Setting.Records = new List<string>();
-                    Wheel.WaitingOptions.AddRange(Setting.Values);
+                    foreach (var option in Setting.Values)
+                        Wheel.WaitingOptions.Add(option);
                 }
                 r.Close();
             }
@@ -134,7 +134,7 @@ namespace GoldenKeyMK2
                     Login.DrawConnectScreen();
                     break;
                 case GameScreen.Wheel:
-                    if (State >= GameState.Spinning && State < GameState.Saving) CalculateAngle();
+                    if (State is >= GameState.Spinning and < GameState.Saving) CalculateAngle();
                     Wheel.DrawWheel(Angle);
                     Panel.DrawPanels();
                     Panel.DrawControl();

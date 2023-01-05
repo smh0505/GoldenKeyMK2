@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Numerics;
 using Raylib_cs;
 
@@ -6,7 +7,7 @@ namespace GoldenKeyMK2
     public class Wheel
     {
         public static List<Option> Options = new List<Option>();
-        public static List<string> WaitingOptions = new List<string>();
+        public static ConcurrentBag<string> WaitingOptions = new ConcurrentBag<string>();
         private static readonly Random Rnd = new Random();
 
         public static int Sum

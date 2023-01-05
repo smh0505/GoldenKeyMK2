@@ -6,7 +6,7 @@ namespace GoldenKeyMK2
 {
     public class Login
     {
-        public static string? Payload;
+        public static string Payload;
         private static string _alert = "Enter 키를 눌러 연결합니다.";
 
         private static readonly Rectangle LoadDefault = new Rectangle(448, 400, 160, 64);
@@ -107,7 +107,8 @@ namespace GoldenKeyMK2
             {
                 if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
                 {
-                    Wheel.WaitingOptions.AddRange(Program.Setting.Values);
+                    foreach (var option in Program.Setting.Values)
+                        Wheel.WaitingOptions.Add(option);
                     Program.Switches["IsLoading"] = false;
                 }
                 else Raylib.DrawRectangle(448, 400, 160, 64, Color.RED);
@@ -116,7 +117,8 @@ namespace GoldenKeyMK2
             {
                 if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
                 {
-                    Wheel.WaitingOptions.AddRange(Program.Setting.Records);
+                    foreach (var option in Program.Setting.Values)
+                        Wheel.WaitingOptions.Add(option);
                     Program.Switches["IsLoading"] = false;
                 }
                 else Raylib.DrawRectangle(672, 400, 160, 64, Color.GREEN);
